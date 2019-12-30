@@ -16,7 +16,7 @@
   Drupatsby (Docker + Drupal + Gatsby)
 </h1>
 
-This project contains a basic structure of a Drupal + Gatsby
+This repository contains a basic structure of a Docker + Drupal + Gatsby project
 
 ## 🚀 Quick start
 
