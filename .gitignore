@@ -3,3 +3,6 @@ mariadb/
 
 # vendor folder
 vendor/
+
+# temporary files
+web/sites/default/files/php/twig
