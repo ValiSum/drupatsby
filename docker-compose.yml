@@ -47,17 +47,19 @@ services:
 
     volumes:
       - ./:/var/www/html
-  ## For macOS users (https://wodby.com/docs/stacks/drupal/local#docker-for-mac)
-  #      - ./:/var/www/html:cached # User-guided caching
-  #      - docker-sync:/var/www/html # Docker-sync
-  ## For XHProf and Xdebug profiler traces
-  #      - files:/mnt/files
+    ## For macOS users (https://wodby.com/docs/stacks/drupal/local#docker-for-mac)
+    #      - ./:/var/www/html:cached # User-guided caching
+    #      - docker-sync:/var/www/html # Docker-sync
+    ## For XHProf and Xdebug profiler traces
+    #      - files:/mnt/files
+    #command: composer install --ignore-platform-reqs
 
   nginx:
     image: wodby/nginx:$NGINX_TAG
     container_name: "${PROJECT_NAME}_nginx"
     depends_on:
       - php
+      - mariadb
     environment:
       NGINX_STATIC_OPEN_FILE_CACHE: "off"
       NGINX_ERROR_LOG_LEVEL: debug

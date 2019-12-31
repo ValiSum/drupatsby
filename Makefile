@@ -1,6 +1,6 @@
 include .env
 
-default: up
+default: install
 
 COMPOSER_ROOT ?= /var/www/html
 DRUPAL_ROOT ?= /var/www/html/web
@@ -15,12 +15,21 @@ help : Makefile
 	@sed -n 's/^##//p' $<
 endif
 
-## up	:	Start up containers.
-.PHONY: up
-up:
+## install	:	Start up containers.
+.PHONY: install
+install:
 	@echo "Starting up containers for $(PROJECT_NAME)..."
-	docker-compose pull
-	docker-compose up -d --remove-orphans
+	@docker-compose pull
+	@docker-compose up -d --remove-orphans nginx mailhog portainer traefik
+	make init
+	make stop
+	@echo "info: Now run 'make start' to start backend server!"
+
+## init: Init project
+.PHONY: init
+init:
+	@echo "Installing composer dependencies..."
+	@docker-compose exec php composer --working-dir=$(COMPOSER_ROOT) install
 
 ## down	:	Stop containers.
 .PHONY: down
@@ -30,13 +39,26 @@ down: stop
 .PHONY: start
 start:
 	@echo "Starting containers for $(PROJECT_NAME) from where you left off..."
-	@docker-compose start
+	@docker-compose start mariadb php nginx mailhog portainer traefik
+	@echo "info: Now run 'make gatsby' to start frontend server!"
 
 ## stop	:	Stop containers.
 .PHONY: stop
 stop:
 	@echo "Stopping containers for $(PROJECT_NAME)..."
 	@docker-compose stop
+
+## gatsby: Start the gatsby's dev server
+.PHONY: gatsby
+gatsby:
+	@docker-compose run --rm app
+
+
+## restart: Restart the application
+.PHONY: restart
+restart:
+	stop
+	start
 
 ## prune	:	Remove containers and their volumes.
 ##		You can optionally pass an argument with the service name to prune single container
@@ -46,6 +68,11 @@ stop:
 prune:
 	@echo "Removing containers for $(PROJECT_NAME)..."
 	@docker-compose down -v $(filter-out $@,$(MAKECMDGOALS))
+
+## Status for the services (alias to docker-compose ps)
+.PHONY: status
+status:
+	docker-compose ps
 
 ## ps	:	List running containers.
 .PHONY: ps
